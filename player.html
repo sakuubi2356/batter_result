@@ -2,119 +2,108 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8" />
-<title>Momo 5ゾーン結果</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>選手詳細</title>
 <style>
-  :root { --cell: 84px; }
   body {
     font-family: system-ui, -apple-system, "Segoe UI", Roboto,
                  "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
     margin: 24px;
+    background: #f5f5f5;
   }
-  .grid-wrapper { display:grid; place-items:center; }
-  table { border-collapse: collapse; }
-  td.cell {
-    width: var(--cell); height: var(--cell);
-    text-align: center; vertical-align: middle;
-    border: 2px solid #111;
-    font-weight: 700; font-size: 18px;
-    border-right-width: 1px; border-bottom-width: 1px;
+  a.back {
+    display: inline-block;
+    margin-bottom: 12px;
+    font-size: 13px;
+    text-decoration: none;
+    color: #2563eb;
   }
-  tr:last-child td.cell { border-bottom-width: 2px; }
-  td.cell:nth-child(2) { border-left-width: 2px; }
-  td.cell:nth-child(4) { border-right-width: 2px; }
+  a.back:hover { text-decoration: underline; }
+  h1 { font-size: 22px; margin: 0 0 10px; }
 
-  td.side {
-    position: relative;
-    width: 40px;
-    text-align: center;
-    font-weight: 900;
-    user-select: none;
+  .layout {
+    margin-top: 10px;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
   }
-  td.side .rot{
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    transform-origin: center center;
+  .panel-grid {
+    flex: 0 0 auto;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #ddd;
+    background: #fff;
+  }
+  .panel-grid iframe {
+    width: 260px;
+    height: 260px;
+    border: none;
+  }
+  .panel-hand {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .panel-hand img {
+    max-width: 160px;
+    height: auto;
     display: block;
-    font-size: 24px;
-    line-height: 1;
   }
-  .foot { color:#666; font-size:12px; margin-top:8px; text-align:center; }
+
+  .layout.left  .panel-grid { order: 1; }
+  .layout.left  .panel-hand { order: 2; }
+
+  .layout.right .panel-hand { order: 1; }
+  .layout.right .panel-grid { order: 2; }
 </style>
 </head>
 <body>
-<div class="grid-wrapper">
-  <table>
-    <tr>
-      <td class="side right" rowspan="3"><span class="rot">R</span></td>
 
-      <!-- Z1：クリックすると画面全体で Momo_Z1.html に移動 -->
-      <td class="cell" style="background-color:rgb(255,226,226); color:#000000;">
-        <a href="Momo_Z1.html" target="_top"
-           style="display:flex;align-items:center;justify-content:center;
-                  width:100%;height:100%;color:inherit;text-decoration:none;">
-          0.0346
-        </a>
-      </td>
+<a href="index.html" class="back">&larr; 選手一覧に戻る</a>
+<h1 id="playerName">選手名</h1>
 
-      <!-- Z2：常に空白 -->
-      <td class="cell" style="background-color:#ffffff; color:#000000;"></td>
-
-      <!-- Z3 -->
-      <td class="cell" style="background-color:rgb(255,236,236); color:#000000;">
-        <a href="Momo_Z3.html" target="_top"
-           style="display:flex;align-items:center;justify-content:center;
-                  width:100%;height:100%;color:inherit;text-decoration:none;">
-          0.0220
-        </a>
-      </td>
-
-      <td class="side left" rowspan="3"><span class="rot">L</span></td>
-    </tr>
-
-    <tr>
-      <!-- Z4：空白 -->
-      <td class="cell" style="background-color:#ffffff; color:#000000;"></td>
-
-      <!-- Z5 -->
-      <td class="cell" style="background-color:rgb(255,223,223); color:#000000;">
-        <a href="Momo_Z5.html" target="_top"
-           style="display:flex;align-items:center;justify-content:center;
-                  width:100%;height:100%;color:inherit;text-decoration:none;">
-          0.0376
-        </a>
-      </td>
-
-      <!-- Z6：空白 -->
-      <td class="cell" style="background-color:#ffffff; color:#000000;"></td>
-    </tr>
-
-    <tr>
-      <!-- Z7 -->
-      <td class="cell" style="background-color:rgb(255,250,250); color:#000000;">
-        <a href="Momo_Z7.html" target="_top"
-           style="display:flex;align-items:center;justify-content:center;
-                  width:100%;height:100%;color:inherit;text-decoration:none;">
-          0.0055
-        </a>
-      </td>
-
-      <!-- Z8：空白 -->
-      <td class="cell" style="background-color:#ffffff; color:#000000;"></td>
-
-      <!-- Z9 -->
-      <td class="cell" style="background-color:rgb(255,213,213); color:#000000;">
-        <a href="Momo_Z9.html" target="_top"
-           style="display:flex;align-items:center;justify-content:center;
-                  width:100%;height:100%;color:inherit;text-decoration:none;">
-          0.0497
-        </a>
-      </td>
-    </tr>
-  </table>
-
-  <div class="foot">選手名：Momo （基準最大値 = 0.3）</div>
+<div id="layout" class="layout">
+  <div class="panel-hand">
+    <img id="handImage" src="" alt="">
+  </div>
+  <div class="panel-grid">
+    <iframe id="resultFrame" src=""></iframe>
+  </div>
 </div>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+
+const id     = params.get("id")     || ""; // Oomura など
+const name   = params.get("name")   || ""; // 大村 など
+const hand   = (params.get("hand") || "left").toLowerCase(); // left/right
+const folder = params.get("folder") || ""; // フォルダ名（大村など）
+
+// 見出し
+document.title = name ? `${name} の結果` : "選手詳細";
+document.getElementById("playerName").textContent = name || id || "選手";
+
+// レイアウト（左右入れ替え）
+const layout = document.getElementById("layout");
+layout.classList.add(hand === "right" ? "right" : "left");
+
+// 利き手画像
+const handImage = document.getElementById("handImage");
+if (hand === "left") {
+  handImage.src = "left.png";
+  handImage.alt = "左打者";
+} else {
+  handImage.src = "right.png";
+  handImage.alt = "右打者";
+}
+
+// 5result.html へのパス
+// batter_result/player.html から見て
+// left/大村/Oomura_5result.html
+const framePath = `${hand}/${folder}/${id}_5result.html`;
+document.getElementById("resultFrame").src = framePath;
+</script>
+
 </body>
 </html>
