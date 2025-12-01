@@ -1,133 +1,36 @@
-# -*- coding: utf-8 -*-
-"""
-Z1, Z3, Z5, Z7, Z9 の値から 3x3 グリッド HTML を生成するスクリプト。
-
-- 濃淡基準値: 0.3 固定
-- 保存先: C:\Users\ubila\result\answer\highschool\html
-- 出力ファイル: {player_name}_5result.html
-- Z1/Z3/Z5/Z7/Z9 の数字をクリックすると
-  {player_name}_Z1.html などに「画面一面」で遷移（target="_top"）
-"""
-
-import os
-
-# ===== 設定 =====
-OUTPUT_DIR = r"C:\Users\ubila\result\answer\highschool\html"
-REF_MAX = 0.3  # 最も濃い赤になる基準値
-
-os.makedirs(OUTPUT_DIR, exist_ok=True)
-
-
-def make_cell_html(v, ref_max, href=None):
-    """
-    1マス分の <td> を作る。
-    v=None のときは白マス。href があればリンク付き。
-    数字はセル中央。リンクは target="_top" で画面全体遷移。
-    """
-    if v is None:
-        bg = "#ffffff"
-        fg = "#000000"
-        inner = ""
-    else:
-        # 0〜1 に正規化して色決定
-        t = v / ref_max
-        t = max(0.0, min(t, 1.0))
-
-        gb = round(255 * (1 - t))
-        bg = f"rgb(255,{gb},{gb})"
-
-        # 簡易輝度で文字色決定
-        luminance = 0.2126 * 255 + 0.7152 * gb + 0.0722 * gb
-        fg = "#ffffff" if luminance < 160 else "#000000"
-
-        text = f"{v:.4f}"  # 小数4桁表示
-
-        if href:
-            inner = (
-                f'<a href="{href}" target="_top" '
-                f'style="display:flex;align-items:center;justify-content:center;'
-                f'width:100%;height:100%;color:inherit;text-decoration:none;">'
-                f'{text}</a>'
-            )
-        else:
-            inner = text
-
-    return f'<td class="cell" style="background-color:{bg}; color:{fg};">{inner}</td>'
-
-
-def main():
-    # ===== 入力 =====
-    player_name = input("選手名（例: Momo）を入力してください：").strip()
-
-    vals_str = input("Z1 Z3 Z5 Z7 Z9 の値を空白区切りで入力してください：\n> ").split()
-    if len(vals_str) != 5:
-        raise ValueError("ちょうど 5 個（Z1 Z3 Z5 Z7 Z9）の値を入力してください。")
-
-    z1, z3, z5, z7, z9 = map(float, vals_str)
-
-    # クリック先の URL（同じフォルダに {player_name}_Z*.html がある前提）
-    link_z1 = f"{player_name}_Z1.html"
-    link_z3 = f"{player_name}_Z3.html"
-    link_z5 = f"{player_name}_Z5.html"
-    link_z7 = f"{player_name}_Z7.html"
-    link_z9 = f"{player_name}_Z9.html"
-
-    # 3x3 の 9 マス分の値
-    vals = [z1, None, z3,
-            None, z5, None,
-            z7, None, z9]
-
-    hrefs = [
-        link_z1,  # Z1
-        None,     # Z2
-        link_z3,  # Z3
-        None,     # Z4
-        link_z5,  # Z5
-        None,     # Z6
-        link_z7,  # Z7
-        None,     # Z8
-        link_z9,  # Z9
-    ]
-
-    cells_html = [
-        make_cell_html(v, REF_MAX, href=hrefs[i])
-        for i, v in enumerate(vals)
-    ]
-
-    # ===== HTML 全体 =====
-    html = """<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta charset="UTF-8" />
-<title>{player} 5ゾーン結果</title>
+<title>Momo 5ゾーン結果</title>
 <style>
-  :root {{ --cell: 84px; }}
-  body {{
+  :root { --cell: 84px; }
+  body {
     font-family: system-ui, -apple-system, "Segoe UI", Roboto,
                  "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
     margin: 24px;
-  }}
-  .grid-wrapper {{ display:grid; place-items:center; }}
-  table {{ border-collapse: collapse; }}
-  td.cell {{
+  }
+  .grid-wrapper { display:grid; place-items:center; }
+  table { border-collapse: collapse; }
+  td.cell {
     width: var(--cell); height: var(--cell);
     text-align: center; vertical-align: middle;
     border: 2px solid #111;
     font-weight: 700; font-size: 18px;
     border-right-width: 1px; border-bottom-width: 1px;
-  }}
-  tr:last-child td.cell {{ border-bottom-width: 2px; }}
-  td.cell:nth-child(2) {{ border-left-width: 2px; }}
-  td.cell:nth-child(4) {{ border-right-width: 2px; }}
+  }
+  tr:last-child td.cell { border-bottom-width: 2px; }
+  td.cell:nth-child(2) { border-left-width: 2px; }
+  td.cell:nth-child(4) { border-right-width: 2px; }
 
-  td.side {{
+  td.side {
     position: relative;
     width: 40px;
     text-align: center;
     font-weight: 900;
     user-select: none;
-  }}
-  td.side .rot{{
+  }
+  td.side .rot{
     position: absolute;
     top: 50%;
     left: 50%;
@@ -136,8 +39,8 @@ def main():
     display: block;
     font-size: 24px;
     line-height: 1;
-  }}
-  .foot {{ color:#666; font-size:12px; margin-top:8px; text-align:center; }}
+  }
+  .foot { color:#666; font-size:12px; margin-top:8px; text-align:center; }
 </style>
 </head>
 <body>
@@ -145,36 +48,73 @@ def main():
   <table>
     <tr>
       <td class="side right" rowspan="3"><span class="rot">R</span></td>
-      {c1}{c2}{c3}
+
+      <!-- Z1：クリックすると画面全体で Momo_Z1.html に移動 -->
+      <td class="cell" style="background-color:rgb(255,226,226); color:#000000;">
+        <a href="Momo_Z1.html" target="_top"
+           style="display:flex;align-items:center;justify-content:center;
+                  width:100%;height:100%;color:inherit;text-decoration:none;">
+          0.0346
+        </a>
+      </td>
+
+      <!-- Z2：常に空白 -->
+      <td class="cell" style="background-color:#ffffff; color:#000000;"></td>
+
+      <!-- Z3 -->
+      <td class="cell" style="background-color:rgb(255,236,236); color:#000000;">
+        <a href="Momo_Z3.html" target="_top"
+           style="display:flex;align-items:center;justify-content:center;
+                  width:100%;height:100%;color:inherit;text-decoration:none;">
+          0.0220
+        </a>
+      </td>
+
       <td class="side left" rowspan="3"><span class="rot">L</span></td>
     </tr>
+
     <tr>
-      {c4}{c5}{c6}
+      <!-- Z4：空白 -->
+      <td class="cell" style="background-color:#ffffff; color:#000000;"></td>
+
+      <!-- Z5 -->
+      <td class="cell" style="background-color:rgb(255,223,223); color:#000000;">
+        <a href="Momo_Z5.html" target="_top"
+           style="display:flex;align-items:center;justify-content:center;
+                  width:100%;height:100%;color:inherit;text-decoration:none;">
+          0.0376
+        </a>
+      </td>
+
+      <!-- Z6：空白 -->
+      <td class="cell" style="background-color:#ffffff; color:#000000;"></td>
     </tr>
+
     <tr>
-      {c7}{c8}{c9}
+      <!-- Z7 -->
+      <td class="cell" style="background-color:rgb(255,250,250); color:#000000;">
+        <a href="Momo_Z7.html" target="_top"
+           style="display:flex;align-items:center;justify-content:center;
+                  width:100%;height:100%;color:inherit;text-decoration:none;">
+          0.0055
+        </a>
+      </td>
+
+      <!-- Z8：空白 -->
+      <td class="cell" style="background-color:#ffffff; color:#000000;"></td>
+
+      <!-- Z9 -->
+      <td class="cell" style="background-color:rgb(255,213,213); color:#000000;">
+        <a href="Momo_Z9.html" target="_top"
+           style="display:flex;align-items:center;justify-content:center;
+                  width:100%;height:100%;color:inherit;text-decoration:none;">
+          0.0497
+        </a>
+      </td>
     </tr>
   </table>
-  <div class="foot">選手名：{player} （基準最大値 = {ref_max}）</div>
+
+  <div class="foot">選手名：Momo （基準最大値 = 0.3）</div>
 </div>
 </body>
 </html>
-""".format(
-        player=player_name,
-        ref_max=REF_MAX,
-        c1=cells_html[0], c2=cells_html[1], c3=cells_html[2],
-        c4=cells_html[3], c5=cells_html[4], c6=cells_html[5],
-        c7=cells_html[6], c8=cells_html[7], c9=cells_html[8],
-    )
-
-    # ===== 保存 =====
-    filename = f"{player_name}_5result.html"
-    out_path = os.path.join(OUTPUT_DIR, filename)
-    with open(out_path, "w", encoding="utf-8") as f:
-        f.write(html)
-
-    print("保存しました：", out_path)
-
-
-if __name__ == "__main__":
-    main()
