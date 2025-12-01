@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>選手詳細</title>
+<style>
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto,
+                 "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+    margin: 24px;
+    background: #f5f5f5;
+  }
+  a.back {
+    display: inline-block;
+    margin-bottom: 12px;
+    font-size: 13px;
+    text-decoration: none;
+    color: #2563eb;
+  }
+  a.back:hover {
+    text-decoration: underline;
+  }
+  h1 {
+    font-size: 22px;
+    margin: 0 0 10px;
+  }
+
+  .layout {
+    margin-top: 10px;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .panel-grid {
+    flex: 0 0 auto;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #ddd;
+    background: #fff;
+  }
+  .panel-grid iframe {
+    width: 260px;   /* 小さく表示するならここで調整 */
+    height: 260px;
+    border: none;
+  }
+
+  .panel-hand {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .panel-hand img {
+    max-width: 160px;
+    height: auto;
+    display: block;
+  }
+
+  /* 利き手による左右の入れ替え */
+  .layout.left  .panel-grid { order: 1; }
+  .layout.left  .panel-hand { order: 2; }
+
+  .layout.right .panel-hand { order: 1; }
+  .layout.right .panel-grid { order: 2; }
+</style>
+</head>
+<body>
+
+<a href="index.html" class="back">&larr; 選手一覧に戻る</a>
+<h1 id="playerName">選手名</h1>
+
+<div id="layout" class="layout">
+  <div class="panel-hand">
+    <img id="handImage" src="" alt="">
+  </div>
+  <div class="panel-grid">
+    <iframe id="resultFrame" src=""></iframe>
+  </div>
+</div>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const id   = params.get("id")   || "";
+const name = params.get("name") || "";
+const hand = (params.get("hand") || "left").toLowerCase();
+
+// タイトルと見出し
+document.title = name ? `${name} の結果` : "選手詳細";
+document.getElementById("playerName").textContent = name || id || "選手";
+
+// レイアウトのクラス（左右入れ替え用）
+const layout = document.getElementById("layout");
+layout.classList.add(hand === "right" ? "right" : "left");
+
+// 利き手画像
+const handImage = document.getElementById("handImage");
+if (hand === "left") {
+  handImage.src = "left.png";   // 必要に応じてパスを変えてOK
+  handImage.alt = "左打者";
+} else {
+  handImage.src = "right.png";
+  handImage.alt = "右打者";
+}
+
+// 5result.html のパス
+// 例: hand="right", id="Momo" → "right/Momo/Momo_5result.html"
+const framePath = `${hand}/${id}/${id}_5result.html`;
+document.getElementById("resultFrame").src = framePath;
+</script>
+
+</body>
+</html>
