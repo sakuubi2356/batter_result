@@ -11,10 +11,7 @@
     margin: 24px;
     background: #f5f5f5;
   }
-  h1 {
-    font-size: 22px;
-    margin-bottom: 16px;
-  }
+  h1 { font-size: 22px; margin-bottom: 16px; }
   ul.player-list {
     list-style: none;
     padding: 0;
@@ -51,17 +48,17 @@
 <ul class="player-list" id="playerList"></ul>
 
 <script>
-// ここに選手の情報を書く
-// id  : フォルダ名＆ファイル名のプレフィックス（Momo など）
-// name: 表示したい日本語名
-// hand: "left" か "right"
+// id     : ファイル名プレフィックス (Oomura_5result.html などの Oomura 部分)
+// name   : 画面表示用の名前
+// folder : left/right 配下のフォルダ名（日本語）
+// hand   : "left" or "right"
 const players = [
-  { id: "Omura",   name: "大村", hand: "left"  },
-  { id: "Ando",    name: "安藤", hand: "left"  },
-  { id: "Segawa",  name: "瀬川", hand: "left"  },
-  { id: "Hayashi", name: "林",   hand: "right" },
-  { id: "Momo",    name: "百川", hand: "right" },
-  { id: "Nomura",  name: "野村", hand: "right" }
+  { id: "Oomura",  name: "大村", folder: "大村", hand: "left" },
+  { id: "Ando",    name: "安藤", folder: "安藤", hand: "left" },
+  { id: "Segawa",  name: "瀬川", folder: "瀬川", hand: "left" },
+  { id: "Hayashi", name: "林",   folder: "林",   hand: "right" },
+  { id: "Momo",    name: "百川", folder: "百川", hand: "right" },
+  { id: "Nomura",  name: "野村", folder: "野村", hand: "right" }
 ];
 
 const listEl = document.getElementById("playerList");
@@ -70,8 +67,7 @@ players.forEach(p => {
   const li = document.createElement("li");
   const a  = document.createElement("a");
 
-  // player.html にクエリで情報を渡す
-  const url = `player.html?id=${encodeURIComponent(p.id)}&name=${encodeURIComponent(p.name)}&hand=${p.hand}`;
+  const url = `player.html?id=${encodeURIComponent(p.id)}&name=${encodeURIComponent(p.name)}&hand=${p.hand}&folder=${encodeURIComponent(p.folder)}`;
   a.href = url;
   a.textContent = p.name;
 
