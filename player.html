@@ -34,17 +34,15 @@
     border: 1px solid #ddd;
     background: #fff;
   }
+
+  /* iframeのサイズはJSで調整するため初期はauto */
   .panel-grid iframe {
-    width: 260px;
-    height: 260px;
     border: none;
+    width: auto;
+    height: auto;
+    display: block;
   }
-  .panel-hand {
-    flex: 0 0 auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+
   .panel-hand img {
     max-width: 160px;
     height: auto;
@@ -75,16 +73,16 @@
 <script>
 const params = new URLSearchParams(window.location.search);
 
-const id     = params.get("id")     || ""; // Oomura など
-const name   = params.get("name")   || ""; // 大村 など
-const hand   = (params.get("hand") || "left").toLowerCase(); // left/right
-const folder = params.get("folder") || ""; // フォルダ名（大村など）
+const id     = params.get("id")     || "";
+const name   = params.get("name")   || "";
+const hand   = (params.get("hand") || "left").toLowerCase();
+const folder = params.get("folder") || "";
 
 // 見出し
 document.title = name ? `${name} の結果` : "選手詳細";
 document.getElementById("playerName").textContent = name || id || "選手";
 
-// レイアウト（左右入れ替え）
+// レイアウト
 const layout = document.getElementById("layout");
 layout.classList.add(hand === "right" ? "right" : "left");
 
@@ -98,11 +96,19 @@ if (hand === "left") {
   handImage.alt = "右打者";
 }
 
-// 5result.html へのパス
-// batter_result/player.html から見て
-// left/大村/Oomura_5result.html
+// iframe パス設定
 const framePath = `${hand}/${folder}/${id}_5result.html`;
-document.getElementById("resultFrame").src = framePath;
+const frame = document.getElementById("resultFrame");
+frame.src = framePath;
+
+// === 画像の高さに合わせて iframe のサイズを同期 ===
+handImage.onload = () => {
+  const imgHeight = handImage.clientHeight;
+  const imgWidth  = handImage.clientWidth;
+
+  frame.style.width = imgWidth + "px";
+  frame.style.height = imgHeight + "px";
+};
 </script>
 
 </body>
