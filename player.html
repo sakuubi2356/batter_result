@@ -21,39 +21,68 @@
   a.back:hover { text-decoration: underline; }
   h1 { font-size: 22px; margin: 0 0 10px; }
 
+  /* メインレイアウト（横並び） */
   .layout {
     margin-top: 10px;
     display: flex;
     align-items: flex-start;
     gap: 16px;
   }
+
+  /* 左右のパネル */
   .panel-grid {
-    flex: 0 0 auto;
+    flex: 0 0 280px;           /* PC のときの標準サイズ */
+    max-width: 100%;
     border-radius: 8px;
     overflow: hidden;
     border: 1px solid #ddd;
     background: #fff;
   }
-
-  /* iframeのサイズはJSで調整するため初期はauto */
   .panel-grid iframe {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1 / 1;       /* 常に正方形にして 3×3 が見えるように */
     border: none;
-    width: auto;
-    height: auto;
-    display: block;
   }
 
+  .panel-hand {
+    flex: 0 0 140px;           /* PC のときの標準サイズ */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
   .panel-hand img {
-    max-width: 160px;
+    max-width: 100%;
     height: auto;
     display: block;
   }
 
+  /* 左打ち/右打ちで左右を入れ替え */
   .layout.left  .panel-grid { order: 1; }
   .layout.left  .panel-hand { order: 2; }
 
   .layout.right .panel-hand { order: 1; }
   .layout.right .panel-grid { order: 2; }
+
+  /* ===== スマホ用レイアウト（幅 600px 以下） ===== */
+  @media (max-width: 600px) {
+    body {
+      margin: 12px;
+    }
+    .layout {
+      gap: 8px;
+    }
+    .panel-grid {
+      flex: 0 0 70vw;      /* 画面幅の 70% を HTML 用に */
+    }
+    .panel-hand {
+      flex: 0 0 22vw;      /* 残り 20〜30% くらいを画像用に */
+    }
+    .panel-hand img {
+      width: 100%;
+      height: auto;
+    }
+  }
 </style>
 </head>
 <body>
@@ -73,16 +102,16 @@
 <script>
 const params = new URLSearchParams(window.location.search);
 
-const id     = params.get("id")     || "";
-const name   = params.get("name")   || "";
-const hand   = (params.get("hand") || "left").toLowerCase();
-const folder = params.get("folder") || "";
+const id     = params.get("id")     || ""; // 例: segawa
+const name   = params.get("name")   || ""; // 例: 瀬川
+const hand   = (params.get("hand") || "left").toLowerCase(); // left/right
+const folder = params.get("folder") || ""; // フォルダ名（瀬川 など）
 
-// 見出し
+// タイトルと見出し
 document.title = name ? `${name} の結果` : "選手詳細";
 document.getElementById("playerName").textContent = name || id || "選手";
 
-// レイアウト
+// レイアウト左右入れ替え
 const layout = document.getElementById("layout");
 layout.classList.add(hand === "right" ? "right" : "left");
 
@@ -96,19 +125,9 @@ if (hand === "left") {
   handImage.alt = "右打者";
 }
 
-// iframe パス設定
+// 5result.html を iframe に読み込む
 const framePath = `${hand}/${folder}/${id}_5result.html`;
-const frame = document.getElementById("resultFrame");
-frame.src = framePath;
-
-// === 画像の高さに合わせて iframe のサイズを同期 ===
-handImage.onload = () => {
-  const imgHeight = handImage.clientHeight;
-  const imgWidth  = handImage.clientWidth;
-
-  frame.style.width = imgWidth + "px";
-  frame.style.height = imgHeight + "px";
-};
+document.getElementById("resultFrame").src = framePath;
 </script>
 
 </body>
