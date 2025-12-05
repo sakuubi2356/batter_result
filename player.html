@@ -21,68 +21,59 @@
   a.back:hover { text-decoration: underline; }
   h1 { font-size: 22px; margin: 0 0 10px; }
 
-  /* メインレイアウト（横並び） */
-  .layout {
+  /* 2つのレイアウトを並べる親コンテナ */
+  .page-layout {
     margin-top: 10px;
+    display: flex;
+    flex-direction: column; /* スマホ: 縦積み */
+    gap: 16px;
+    align-items: stretch;
+  }
+
+  /* PCでは左右に並べる */
+  @media (min-width: 768px) {
+    .page-layout {
+      flex-direction: row;
+    }
+    .layout {
+      flex: 1 1 0;
+    }
+  }
+
+  .layout {
     display: flex;
     align-items: flex-start;
     gap: 16px;
   }
-
-  /* 左右のパネル */
   .panel-grid {
-    flex: 0 0 280px;           /* PC のときの標準サイズ */
-    max-width: 100%;
+    flex: 0 0 auto;
     border-radius: 8px;
     overflow: hidden;
     border: 1px solid #ddd;
     background: #fff;
   }
   .panel-grid iframe {
-    display: block;
-    width: 100%;
-    aspect-ratio: 1 / 1;       /* 常に正方形にして 3×3 が見えるように */
+    width: 260px;
+    height: 260px;
     border: none;
   }
-
   .panel-hand {
-    flex: 0 0 140px;           /* PC のときの標準サイズ */
+    flex: 0 0 auto;
     display: flex;
     align-items: center;
     justify-content: center;
   }
   .panel-hand img {
-    max-width: 100%;
+    max-width: 160px;
     height: auto;
     display: block;
   }
 
-  /* 左打ち/右打ちで左右を入れ替え */
   .layout.left  .panel-grid { order: 1; }
   .layout.left  .panel-hand { order: 2; }
 
   .layout.right .panel-hand { order: 1; }
   .layout.right .panel-grid { order: 2; }
-
-  /* ===== スマホ用レイアウト（幅 600px 以下） ===== */
-  @media (max-width: 600px) {
-    body {
-      margin: 12px;
-    }
-    .layout {
-      gap: 8px;
-    }
-    .panel-grid {
-      flex: 0 0 70vw;      /* 画面幅の 70% を HTML 用に */
-    }
-    .panel-hand {
-      flex: 0 0 22vw;      /* 残り 20〜30% くらいを画像用に */
-    }
-    .panel-hand img {
-      width: 100%;
-      height: auto;
-    }
-  }
 </style>
 </head>
 <body>
@@ -90,32 +81,48 @@
 <a href="index.html" class="back">&larr; 選手一覧に戻る</a>
 <h1 id="playerName">選手名</h1>
 
-<div id="layout" class="layout">
-  <div class="panel-hand">
-    <img id="handImage" src="" alt="">
+<div class="page-layout">
+  <!-- 通常版 5result -->
+  <div id="layout" class="layout">
+    <div class="panel-hand">
+      <img id="handImage" src="" alt="">
+    </div>
+    <div class="panel-grid">
+      <iframe id="resultFrame" src=""></iframe>
+    </div>
   </div>
-  <div class="panel-grid">
-    <iframe id="resultFrame" src=""></iframe>
+
+  <!-- SWE版 5result_SWE -->
+  <div id="layoutSWE" class="layout">
+    <div class="panel-hand">
+      <img id="handImageSWE" src="" alt="">
+    </div>
+    <div class="panel-grid">
+      <iframe id="resultFrameSWE" src=""></iframe>
+    </div>
   </div>
 </div>
 
 <script>
 const params = new URLSearchParams(window.location.search);
 
-const id     = params.get("id")     || ""; // 例: segawa
-const name   = params.get("name")   || ""; // 例: 瀬川
+const id     = params.get("id")     || ""; // Oomura など
+const name   = params.get("name")   || ""; // 大村 など
 const hand   = (params.get("hand") || "left").toLowerCase(); // left/right
-const folder = params.get("folder") || ""; // フォルダ名（瀬川 など）
+const folder = params.get("folder") || ""; // フォルダ名（大村など）
+const idLower = id.toLowerCase();   // momo_5result_SWE.html 用
 
-// タイトルと見出し
+// 見出し
 document.title = name ? `${name} の結果` : "選手詳細";
 document.getElementById("playerName").textContent = name || id || "選手";
 
-// レイアウト左右入れ替え
-const layout = document.getElementById("layout");
+// レイアウト（左右入れ替え）
+const layout     = document.getElementById("layout");
+const layoutSWE  = document.getElementById("layoutSWE");
 layout.classList.add(hand === "right" ? "right" : "left");
+layoutSWE.classList.add(hand === "right" ? "right" : "left");
 
-// 利き手画像
+// 利き手画像（通常版）
 const handImage = document.getElementById("handImage");
 if (hand === "left") {
   handImage.src = "left.png";
@@ -125,9 +132,26 @@ if (hand === "left") {
   handImage.alt = "右打者";
 }
 
-// 5result.html を iframe に読み込む
+// 利き手画像（SWE版も同じ）
+const handImageSWE = document.getElementById("handImageSWE");
+if (hand === "left") {
+  handImageSWE.src = "left.png";
+  handImageSWE.alt = "左打者";
+} else {
+  handImageSWE.src = "right.png";
+  handImageSWE.alt = "右打者";
+}
+
+// 5result.html へのパス
+// batter_result/player.html から見て
+// left/大村/Oomura_5result.html
 const framePath = `${hand}/${folder}/${id}_5result.html`;
 document.getElementById("resultFrame").src = framePath;
+
+// 5result_SWE.html へのパス
+// 例: left/大村/momo_5result_SWE.html （id を小文字にしている）
+const framePathSWE = `${hand}/${folder}/${idLower}_5result_SWE.html`;
+document.getElementById("resultFrameSWE").src = framePathSWE;
 </script>
 
 </body>
